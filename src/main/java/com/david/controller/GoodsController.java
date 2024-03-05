@@ -20,9 +20,17 @@ public class GoodsController {
 
 
     @GetMapping(value = "/goods")
-    public BasicOut<List<GoodsDTO>> findAllGoods(){
-
+    public BasicOut<List<GoodsDTO>> findAllGoods() {
+        BasicOut<List<GoodsDTO>> result = new BasicOut<>();
+        try {
+            result = goodsService.findAllGoods();
+        } catch (Exception e) {
+            result.setMessage(ErrorCodeEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
+            result.setRetCode(ErrorCodeEnum.SYSTEM_ERROR.getErrorCode());
+        }
+        return result;
     }
+
     @PostMapping(value = "/goods/add")
     public BasicOut<GoodsDTO> addGoods(@RequestBody GoodsVO goodsVO) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
@@ -35,7 +43,7 @@ public class GoodsController {
         } catch (CustomerException e) {
             result.setMessage(e.getMessage());
         } catch (Exception e) {
-            result.setMessage(ErrorCodeEnum.SYSTEM_ERROR.getMessage() + " reason:" + e.getMessage());
+            result.setMessage(ErrorCodeEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
             result.setRetCode(ErrorCodeEnum.SYSTEM_ERROR.getErrorCode());
         }
         return result;
