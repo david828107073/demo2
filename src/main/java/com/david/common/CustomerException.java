@@ -2,7 +2,7 @@ package com.david.common;
 
 public class CustomerException extends Exception {
 
-    public CustomerException(ErrorCodeEnum errorCodeEnum) {
+    public CustomerException(HttpStatusEnum errorCodeEnum) {
         super(errorCodeEnum.getErrorCode() + " : " + errorCodeEnum.getMessage());
     }
 
@@ -10,7 +10,7 @@ public class CustomerException extends Exception {
         super(message);
     }
 
-    public CustomerException(ErrorCodeEnum errorCodeEnum,Exception e) {
+    public CustomerException(HttpStatusEnum errorCodeEnum, Exception e) {
         super(e);
     }
 }

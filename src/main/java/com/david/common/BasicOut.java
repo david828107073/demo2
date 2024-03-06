@@ -12,5 +12,5 @@ public class BasicOut<T> {
 
     T body;
     String message;
-    int retCode;
+    String retCode;
 }
