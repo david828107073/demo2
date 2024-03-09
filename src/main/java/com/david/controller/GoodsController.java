@@ -6,6 +6,8 @@ import com.david.common.HttpStatusEnum;
 import com.david.dto.GoodsDTO;
 import com.david.service.GoodsService;
 import com.david.vo.GoodsVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ public class GoodsController {
 
 
     @GetMapping(value = "/goods")
+    @Operation(security = {@SecurityRequirement(name = "api token")})
     public BasicOut<List<GoodsDTO>> findAllGoods() {
         BasicOut<List<GoodsDTO>> result = new BasicOut<>();
         try {
@@ -33,6 +36,7 @@ public class GoodsController {
     }
 
     @GetMapping(value = "/goods/{id}")
+    @Operation(security = {@SecurityRequirement(name = "api token")})
     public BasicOut<GoodsDTO> findById(@PathVariable(name = "id") UUID id) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
@@ -46,6 +50,7 @@ public class GoodsController {
     }
 
     @PostMapping(value = "/goods/add")
+    @Operation(security = {@SecurityRequirement(name = "api token")})
     public BasicOut<GoodsDTO> addGoods(@RequestBody GoodsVO goodsVO) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
@@ -64,6 +69,7 @@ public class GoodsController {
     }
 
     @DeleteMapping(value = "/goods/{id}")
+    @Operation(security = {@SecurityRequirement(name = "api token")})
     public BasicOut<Void> deleteGoods(@PathVariable(name = "id") UUID id) {
         BasicOut<Void> result = new BasicOut<>();
         try {
