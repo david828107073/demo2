@@ -10,7 +10,7 @@ docker exec -it postgres /bin/bash ## 進入 postgres container
 
 psql -U postgres ## 使用 postgres 登入
 
-create database demo  ## 新建 database
+create database demo;  ## 新建 database
 \c demo;  ## 切換 database
 
 ##### 建 table & 寫入初始資料(如下)
