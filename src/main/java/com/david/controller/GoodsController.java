@@ -9,6 +9,8 @@ import com.david.vo.GoodsVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +29,19 @@ public class GoodsController {
     public BasicOut<List<GoodsDTO>> findAllGoods() {
         BasicOut<List<GoodsDTO>> result = new BasicOut<>();
         try {
-            result = goodsService.findAllGoods();
+            List<GoodsDTO> goodsList = goodsService.findAllGoods();
+            result.setRetCode(HttpStatusEnum.SUCCESS.getCode());
+            if (!CollectionUtils.isEmpty(goodsList)) {
+                result.setBody(goodsList);
+                result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
+
+            } else {
+                result.setMessage("查無資料");
+            }
         } catch (Exception e) {
-            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
-            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getErrorCode());
+//            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
+//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
+            getErrResponse(e, result);
         }
         return result;
     }
@@ -40,11 +51,19 @@ public class GoodsController {
     public BasicOut<GoodsDTO> findById(@PathVariable(name = "id") UUID id) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
-            result = goodsService.findById(id);
+            GoodsDTO goodsDTO = goodsService.findById(id);
+            result.setRetCode(HttpStatusEnum.SUCCESS.getCode());
+            if (!ObjectUtils.isEmpty(goodsDTO)) {
+                result.setBody(goodsDTO);
+                result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
+            } else {
+                result.setMessage("查無資料");
+            }
         } catch (Exception e) {
-            result.setMessage(e.getMessage());
-            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getErrorCode());
-            result.setBody(null);
+//            result.setMessage(e.getMessage());
+//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
+//            result.setBody(null);
+            getErrResponse(e, result);
         }
         return result;
     }
@@ -55,15 +74,39 @@ public class GoodsController {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
             if (!StringUtils.hasText(goodsVO.getGoodsName())) {
-                throw new CustomerException("請輸入商品名稱");
+                throw new CustomerException(HttpStatusEnum.INPUT_VALUE_VALIDATE_ERROR, "請輸入商品名稱");
             }
-            //TODO 取出 account 塞入 goodsVO
-            result = goodsService.addGoods(goodsVO);
+            GoodsDTO goodsDTO = goodsService.addGoods(goodsVO);
+            result.setRetCode(HttpStatusEnum.SUCCESS.getCode());
+            result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
+            result.setBody(goodsDTO);
         } catch (CustomerException e) {
             result.setMessage(e.getMessage());
         } catch (Exception e) {
-            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
-            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getErrorCode());
+//            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
+//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
+            getErrResponse(e, result);
+        }
+        return result;
+    }
+
+    @PutMapping(value = "/goods/{id}")
+    public BasicOut<GoodsDTO> updateGoods(@PathVariable("id") UUID id, @RequestBody GoodsVO goodsVO) {
+        BasicOut<GoodsDTO> result = new BasicOut<>();
+        try {
+            if (ObjectUtils.isEmpty(id)) {
+                throw new CustomerException(HttpStatusEnum.INPUT_VALUE_VALIDATE_ERROR, "請輸入商品序號");
+            }
+            if (ObjectUtils.isEmpty(goodsVO) || !StringUtils.hasText(goodsVO.getGoodsName())) {
+                throw new CustomerException(HttpStatusEnum.INPUT_VALUE_VALIDATE_ERROR, "請輸入商品名稱");
+            }
+            GoodsDTO goodsDTO = goodsService.updateById(id, goodsVO);
+            result.setRetCode(HttpStatusEnum.SUCCESS.getCode());
+            result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
+            result.setBody(goodsDTO);
+
+        } catch (Exception e) {
+            getErrResponse(e, result);
         }
         return result;
     }
@@ -73,12 +116,25 @@ public class GoodsController {
     public BasicOut<Void> deleteGoods(@PathVariable(name = "id") UUID id) {
         BasicOut<Void> result = new BasicOut<>();
         try {
-            result = goodsService.deleteById(id);
+            goodsService.deleteById(id);
+            result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
+            result.setRetCode(HttpStatusEnum.SUCCESS.getCode());
         } catch (Exception e) {
-            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getErrorCode());
+            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
             result.setMessage(e.getMessage());
+            getErrResponse(e, result);
         }
         return result;
+    }
+
+    private void getErrResponse(Exception e, BasicOut<?> result) {
+        if (e instanceof CustomerException c) {
+            result.setRetCode(c.getErrorCode());
+            result.setMessage(c.getMessage());
+        } else {
+            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getLocalizedMessage());
+            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
+        }
     }
 
 

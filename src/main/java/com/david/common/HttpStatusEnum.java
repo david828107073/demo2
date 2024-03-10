@@ -15,7 +15,7 @@ public enum HttpStatusEnum {
     INPUT_VALUE_VALIDATE_ERROR("E002", "參數檢核有誤"),
     USER_EXIST_ERROR("E003","帳號已存在"),
     UNKNOWN_ERROR("E999","未知異常");
-    private final String errorCode;
+    private final String code;
     private final String message;
 
 }

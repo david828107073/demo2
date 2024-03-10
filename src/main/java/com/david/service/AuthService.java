@@ -22,7 +22,7 @@ public class AuthService {
     final SystemUserRepository systemUserRepository;
 
     @Transactional
-    public void createUser(SystemUserVO userVO) {
+    public SystemUserDTO createUser(SystemUserVO userVO) {
 
         Optional<SystemUser> sysmUserOptional = systemUserRepository.findByAccount(userVO.getAccount());
         if (sysmUserOptional.isPresent()) {
@@ -35,6 +35,10 @@ public class AuthService {
         systemUser.setAccount(userVO.getAccount());
         systemUser.setPassword(encodePwd);
         systemUserRepository.save(systemUser);
+        return SystemUserDTO.builder()
+                .account(systemUser.getAccount())
+                .username(systemUser.getName())
+                .build();
     }
 
     public SystemUserDTO login(SystemUserVO systemUserVO) {

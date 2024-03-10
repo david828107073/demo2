@@ -9,10 +9,12 @@ import com.david.entity.SystemUser;
 import com.david.repository.GoodsRepository;
 import com.david.repository.SystemUserRepository;
 import com.david.vo.GoodsVO;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
@@ -29,78 +31,55 @@ public class GoodsService {
     final GoodsRepository goodsRepository;
     final SystemUserRepository systemUserRepository;
 
-    @Transactional(rollbackOn = Exception.class)
-    public BasicOut<GoodsDTO> addGoods(GoodsVO goodsVO) throws CustomerException {
-        BasicOut result = new BasicOut();
-        try {
-            Optional<SystemUser> systemUserOptional = systemUserRepository.findByAccount(goodsVO.getAccount());
-            SystemUser user = systemUserOptional.orElseThrow(() -> new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR));
-            Goods goods = new Goods();
-            goods.setName(goodsVO.getGoodsName());
-            goods.setCreateUser(user);
-            goods.setUpdateUser(user);
-            goods.setCreateDateTime(new Timestamp(System.currentTimeMillis()));
-            goods.setUpdateDateTime(new Timestamp(System.currentTimeMillis()));
-            goodsRepository.save(goods);
-            GoodsDTO dto = GoodsDTO.builder().goods_name(goods.getName()).id(goods.getId()).build();
-            result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
-            result.setRetCode(HttpStatusEnum.SUCCESS.getErrorCode());
-            result.setBody(dto);
-            return result;
-        } catch (CustomerException cu) {
-            throw cu;
-        } catch (Exception e) {
-            throw new CustomerException(HttpStatusEnum.SYSTEM_ERROR);
-        }
+    @Transactional
+    public GoodsDTO addGoods(GoodsVO goodsVO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String account = authentication.getName();
+        Optional<SystemUser> systemUserOptional = systemUserRepository.findByAccount(account);
+        SystemUser user = systemUserOptional.orElseThrow(() -> new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR));
+        Goods goods = new Goods();
+        goods.setName(goodsVO.getGoodsName());
+        goods.setCreateUser(user);
+        goods.setUpdateUser(user);
+        goods.setCreateDateTime(new Timestamp(System.currentTimeMillis()));
+        goods.setUpdateDateTime(new Timestamp(System.currentTimeMillis()));
+        goods = goodsRepository.save(goods);
+        return convert(goods);
     }
 
-    public BasicOut<List<GoodsDTO>> findAllGoods() throws CustomerException {
-        BasicOut<List<GoodsDTO>> result = new BasicOut<>();
-        try {
-            List<Goods> goods = goodsRepository.findAll();
-            if (CollectionUtils.isEmpty(goods)) {
-                result.setMessage("查無資料");
-                result.setBody(null);
-            } else {
-                List<GoodsDTO> goodsDTOs = convert(goods);
-                result.setBody(goodsDTOs);
-                result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
-            }
-            result.setRetCode(HttpStatusEnum.SUCCESS.getErrorCode());
-            return result;
-        } catch (Exception e) {
-            throw new CustomerException(HttpStatusEnum.SYSTEM_ERROR, e);
-        }
+    public List<GoodsDTO> findAllGoods() {
+        List<Goods> goods = goodsRepository.findAll();
+        return convert(goods);
     }
 
-    public BasicOut<GoodsDTO> findById(UUID id) {
-        BasicOut<GoodsDTO> result = new BasicOut<>();
-        Optional<Goods> goodsOptional = goodsRepository.findById(id);
-        result.setRetCode(HttpStatusEnum.SUCCESS.getErrorCode());
-        if (goodsOptional.isPresent()) {
-            GoodsDTO goodsDTO = convert(goodsOptional.get());
-            result.setBody(goodsDTO);
-            result.setMessage("查詢成功");
-        } else {
-            result.setMessage("查無資料");
-        }
-        return result;
+    public GoodsDTO findById(UUID id) {
+        Goods goods = goodsRepository.findById(id).orElseThrow(() -> new CustomerException(HttpStatusEnum.GOODS_NOT_FOUND));
+        return convert(goods);
     }
 
-    public BasicOut<Void> deleteById(UUID id) {
+    @Transactional
+    public void deleteById(UUID id) {
         BasicOut<Void> result = new BasicOut<>();
-        try {
-            Optional<Goods> goodsOptional = goodsRepository.findById(id);
-            Goods goods = goodsOptional.orElseThrow(() -> new CustomerException(HttpStatusEnum.GOODS_NOT_FOUND));
-            goodsRepository.delete(goods);
-            result.setMessage(HttpStatusEnum.SUCCESS.getMessage());
-            result.setRetCode(HttpStatusEnum.SUCCESS.getErrorCode());
-        } catch (Exception e) {
-            result.setMessage(e.getMessage());
-            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getErrorCode());
-        }
-        return result;
+        Optional<Goods> goodsOptional = goodsRepository.findById(id);
+        Goods goods = goodsOptional.orElseThrow(() -> new CustomerException(HttpStatusEnum.GOODS_NOT_FOUND));
+        goodsRepository.delete(goods);
     }
+
+    @Transactional
+    public GoodsDTO updateById(UUID id, GoodsVO goodsVO) {
+        // 查無商品 throw CustomerException
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String account = authentication.getName();
+        //查無帳號 throw CustomerException
+        SystemUser systemUser = systemUserRepository.findByAccount(account).orElseThrow(() -> new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR));
+        Goods goods = goodsRepository.findById(id).orElseThrow(() -> new CustomerException(HttpStatusEnum.GOODS_NOT_FOUND));
+        goods.setUpdateDateTime(new Timestamp(System.currentTimeMillis()));
+        goods.setUpdateUser(systemUser);
+        goods.setName(goodsVO.getGoodsName());
+        goods = goodsRepository.save(goods);
+        return convert(goods);
+    }
+
 
     private GoodsDTO convert(Goods goods) {
         return GoodsDTO.builder()

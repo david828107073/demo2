@@ -23,7 +23,7 @@ public class JwtUtil {
 
     public String generateToken(Map<String, Object> payload) throws NoSuchAlgorithmException {
         return Jwts.builder().addClaims(payload)
-                .setExpiration(Date.from(Instant.now().plusSeconds(60)))
+                .setExpiration(Date.from(Instant.now().plusSeconds(60L * 60L)))
                 .signWith(ALGORITHM, Keys.hmacShaKeyFor(SECRET.getBytes()))
                 .compact();
     }

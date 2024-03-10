@@ -28,8 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
             String token = authorization.replace("Bearer ", "");
             Map<String, Object> payload = jwtUtil.parse(token);
-            Object username = payload.get("username");
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username, payload, List.of());
+            Object account = payload.get("account");
+            Authentication authentication = new UsernamePasswordAuthenticationToken(account, payload, List.of());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);
