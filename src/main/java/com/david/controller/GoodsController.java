@@ -8,6 +8,7 @@ import com.david.service.GoodsService;
 import com.david.vo.GoodsVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "商品 API", description = "商品增刪改查")
 public class GoodsController {
 
     final GoodsService goodsService;
@@ -39,8 +41,6 @@ public class GoodsController {
                 result.setMessage("查無資料");
             }
         } catch (Exception e) {
-//            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
-//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
             getErrResponse(e, result);
         }
         return result;
@@ -60,9 +60,6 @@ public class GoodsController {
                 result.setMessage("查無資料");
             }
         } catch (Exception e) {
-//            result.setMessage(e.getMessage());
-//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
-//            result.setBody(null);
             getErrResponse(e, result);
         }
         return result;
@@ -83,8 +80,6 @@ public class GoodsController {
         } catch (CustomerException e) {
             result.setMessage(e.getMessage());
         } catch (Exception e) {
-//            result.setMessage(HttpStatusEnum.SYSTEM_ERROR.getMessage() + " reason: " + e.getMessage());
-//            result.setRetCode(HttpStatusEnum.SYSTEM_ERROR.getCode());
             getErrResponse(e, result);
         }
         return result;
