@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class CustomerException extends RuntimeException {
-    private String errorCode;
-    private String errorMessage;
+    private final String errorCode;
+    private final String errorMessage;
 
     public CustomerException(HttpStatusEnum errorCodeEnum) {
         super(errorCodeEnum.getCode() + " : " + errorCodeEnum.getMessage());
