@@ -77,5 +77,7 @@ java -jar demo-0.0.1-SNAPSHOT.jar
 ### API 文件路徑
 ```text
 Swagger UI API Path
-http://localhost:8888/swagger-ui/index.html#
+http://localhost:8888/apidoc ## 使用路徑導頁  
+http://localhost:8888/swagger-ui/index.html
+
 ```

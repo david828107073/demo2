@@ -3,6 +3,9 @@ package com.david.common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 回傳格式代碼
+ */
 @RequiredArgsConstructor
 @Getter
 public enum HttpStatusEnum {
@@ -13,8 +16,8 @@ public enum HttpStatusEnum {
     SUCCESS("200", "成功"),
     GOODS_NOT_FOUND("E001", "商品不存在"),
     INPUT_VALUE_VALIDATE_ERROR("E002", "參數檢核有誤"),
-    USER_EXIST_ERROR("E003","帳號已存在"),
-    UNKNOWN_ERROR("E999","未知異常");
+    USER_EXIST_ERROR("E003", "帳號已存在"),
+    UNKNOWN_ERROR("E999", "未知異常");
     private final String code;
     private final String message;
 

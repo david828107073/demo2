@@ -8,12 +8,16 @@ import com.david.service.AuthService;
 import com.david.util.JwtUtil;
 import com.david.vo.SystemUserVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,13 +32,22 @@ import java.util.StringJoiner;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "權限驗證 API", description = "帳號新增、登入驗證")
+@Tag(name = "帳號管理 API", description = "帳號新增、登入驗證")
 public class AuthController {
     final AuthService authService;
     final JwtUtil jwtUtil;
 
     @PostMapping(value = "/auth/add")
-    @Parameter()
+    @Operation(summary = "新增帳號")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = SystemUserDTO.class)
+                    )),
+            @ApiResponse(responseCode = "500", description = "系統錯誤", content = @Content()),
+            @ApiResponse(responseCode = "E003", description = "帳號已存在", content = @Content())
+    })
     public BasicOut<SystemUserDTO> createUser(HttpServletRequest request, @RequestBody SystemUserVO systemUserVO) {
         BasicOut<SystemUserDTO> result = new BasicOut<>();
         try {
@@ -49,8 +62,17 @@ public class AuthController {
         return result;
     }
 
-
     @PostMapping(value = "/auth/login")
+    @Operation(summary = "登入", description = "登入後會回傳 Token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = SystemUserDTO.class)
+                    )),
+            @ApiResponse(responseCode = "401", description = "帳號密碼有誤", content = @Content()),
+            @ApiResponse(responseCode = "500", description = "系統錯誤", content = @Content())
+    })
     public BasicOut<SystemUserDTO> login(HttpServletRequest request, HttpServletResponse response, @RequestBody SystemUserVO systemUserVO) {
         BasicOut<SystemUserDTO> result = new BasicOut<>();
         try {
