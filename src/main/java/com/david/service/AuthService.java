@@ -5,6 +5,7 @@ import com.david.common.HttpStatusEnum;
 import com.david.dto.SystemUserDTO;
 import com.david.entity.SystemUser;
 import com.david.repository.SystemUserRepository;
+import com.david.vo.LoginUserVO;
 import com.david.vo.SystemUserVO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,9 @@ public class AuthService {
                 .build();
     }
 
-    public SystemUserDTO login(SystemUserVO systemUserVO) {
-        SystemUser systemUser = systemUserRepository.findByAccount(systemUserVO.getAccount()).orElseThrow(() -> new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR));
-        if (!passwordEncoder.matches(systemUserVO.getPassword(), systemUser.getPassword())) {
+    public SystemUserDTO login(LoginUserVO loginUserVO) {
+        SystemUser systemUser = systemUserRepository.findByAccount(loginUserVO.getAccount()).orElseThrow(() -> new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR));
+        if (!passwordEncoder.matches(loginUserVO.getPassword(), systemUser.getPassword())) {
             throw new CustomerException(HttpStatusEnum.ACCOUNT_PASSWORD_ERROR);
         }
         return SystemUserDTO

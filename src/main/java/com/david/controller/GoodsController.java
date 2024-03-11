@@ -74,8 +74,7 @@ public class GoodsController {
             @ApiResponse(responseCode = "403", description = "權限不足", content = @Content()),
             @ApiResponse(responseCode = "500", description = "系統錯誤", content = @Content())
     })
-    public BasicOut<GoodsDTO> findById(@Parameter(name = "商品編號", required =
-            true, description = "商品編號") @PathVariable(name = "id") UUID id) {
+    public BasicOut<GoodsDTO> findById(@Parameter(description = "商品 ID", required = true) @PathVariable UUID id) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
             GoodsDTO goodsDTO = goodsService.findById(id);
@@ -136,7 +135,7 @@ public class GoodsController {
             @ApiResponse(responseCode = "E001", description = "商品不存在", content = @Content()),
             @ApiResponse(responseCode = "E002", description = "參數檢核有誤", content = @Content())
     })
-    public BasicOut<GoodsDTO> updateGoods(@Parameter(name = "商品 ID", description = "商品 ID", required = true) @PathVariable("id") UUID id, @RequestBody GoodsVO goodsVO) {
+    public BasicOut<GoodsDTO> updateGoods(@Parameter(description = "商品 ID", required = true) @PathVariable UUID id, @RequestBody GoodsVO goodsVO) {
         BasicOut<GoodsDTO> result = new BasicOut<>();
         try {
             if (ObjectUtils.isEmpty(id)) {
@@ -164,7 +163,7 @@ public class GoodsController {
             @ApiResponse(responseCode = "500", description = "系統錯誤", content = @Content()),
             @ApiResponse(responseCode = "E001", description = "商品不存在", content = @Content())
     })
-    public BasicOut<Void> deleteGoods(@Parameter(name = "商品 ID", description = "商品 ID", required = true) @PathVariable(name = "id") UUID id) {
+    public BasicOut<Void> deleteGoods(@PathVariable(name = "id") UUID id) {
         BasicOut<Void> result = new BasicOut<>();
         try {
             goodsService.deleteById(id);

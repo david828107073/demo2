@@ -6,7 +6,9 @@ import com.david.common.HttpStatusEnum;
 import com.david.dto.SystemUserDTO;
 import com.david.service.AuthService;
 import com.david.util.JwtUtil;
+import com.david.vo.LoginUserVO;
 import com.david.vo.SystemUserVO;
+import com.david.vo.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -73,11 +75,11 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "帳號密碼有誤", content = @Content()),
             @ApiResponse(responseCode = "500", description = "系統錯誤", content = @Content())
     })
-    public BasicOut<SystemUserDTO> login(HttpServletRequest request, HttpServletResponse response, @RequestBody SystemUserVO systemUserVO) {
+    public BasicOut<SystemUserDTO> login(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginUserVO loginUserVO) {
         BasicOut<SystemUserDTO> result = new BasicOut<>();
         try {
-            checkInputData(systemUserVO, request);
-            SystemUserDTO systemUserDTO = authService.login(systemUserVO);
+            checkInputData(loginUserVO, request);
+            SystemUserDTO systemUserDTO = authService.login(loginUserVO);
             String username = systemUserDTO.getUsername();
             String account = systemUserDTO.getAccount();
             Map<String, Object> payload = Map.of("username", username, "account", account);
@@ -92,7 +94,7 @@ public class AuthController {
         return result;
     }
 
-    private void checkInputData(SystemUserVO userVO, HttpServletRequest request) throws CustomerException {
+    private void checkInputData(User userVO, HttpServletRequest request) throws CustomerException {
         String apiPath = request.getRequestURI();
         log.info("request path:{}", apiPath);
         List<String> errors = new ArrayList<>();
@@ -102,7 +104,7 @@ public class AuthController {
         if (!StringUtils.hasText(userVO.getPassword())) {
             errors.add("密碼");
         }
-        if (apiPath.contains("add") && !StringUtils.hasText(userVO.getName())) {
+        if (userVO instanceof SystemUserVO systemUserVO && !StringUtils.hasText(systemUserVO.getName())) {
             errors.add("名稱");
         }
         StringJoiner stringJoiner = new StringJoiner("、", "請輸入", "");
